@@ -1,12 +1,19 @@
 # Turtlebot3-Burger
 School project with a robot Tutlebot3-Burger. Simulation + Real Tests.
+
+
 ![image](https://github.com/gwendal6468/Turtlebot3-Burger/assets/19518431/f37b44f3-acb5-40fe-aa41-ee6908c0f2e7)
+
+
+
 
 For this project we used ROS2 Humble and a turtlebot3-Burger.
 The robot need to be able to do a follow me, then go back to current position. 
 to navigate in the room we have done a scan of the floor. 
 
 Here ise a picture of the scan of the floor using : $ ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True
+
+
 ![image](https://github.com/gwendal6468/Turtlebot3-Burger/assets/19518431/d3ca2a50-ce45-4abf-bce7-8cfaed27f97d)
 
 How to use: 
