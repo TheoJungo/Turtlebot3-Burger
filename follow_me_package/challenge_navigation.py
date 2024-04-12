@@ -35,6 +35,8 @@ class FollowMe(Node):
         self.position_threshold = 0.1  # Position threshold for no movement in meters
         self.angle_treshold = 2
         self.returning_to_initial_position = False  # Flag to indicate if robot is returning to initial position
+        self.init_follow_me = 0
+        self.taille_personne = 0
 
     def pose_estimation_callback(self, msg):
         if self.initial_position is None:
@@ -84,7 +86,9 @@ class FollowMe(Node):
         nb_points = len(msg.ranges)
         nb_valid_points = 0
         somme_dist = 0
-        somme_ang = 0
+        somme_ang = []
+        somme_ang_val = 0
+        nb_somme_ang_final = 0
         vitesse_linear_max = 1.0
         vitesse_angular_max = 0.05
 
@@ -101,6 +105,8 @@ class FollowMe(Node):
                 # Le point est dans le cone
                 if dist_min < msg.ranges[i] < dist_max:
                     # Le point est aussi à la bonne distance
+                    if self.init_follow_me == 0:
+                        self.taille_personne += 1
                     if i > 180:
                         ang = i - 360
                     else:
@@ -108,12 +114,23 @@ class FollowMe(Node):
                     dist = msg.ranges[i]
                     nb_valid_points += 1
                     somme_dist += dist
-                    somme_ang += ang
+                    somme_ang.append(ang)
+                    nb_somme_ang = len(somme_ang)
+                    milieu_somme_ang = nb_somme_ang // 2
+                    valeurs_du_milieu = somme_ang[milieu_somme_ang - (self.taille_personne // 2) : milieu_somme_ang + (self.taille_personne // 2)]
+                    nb_somme_ang_final = len(valeurs_du_milieu)
+                    self.get_logger().info(f"taille_personne= {self.taille_personne}, valeurs_du_milieu= {len(valeurs_du_milieu)}")
+
+        if self.taille_personne != 0:
+          self.init_follow_me = 1
+
+        for i in range(nb_somme_ang_final):
+          somme_ang_val += valeurs_du_milieu[i]
 
         # Ceci est notre meilleure estimation d'où est la personne
         if nb_valid_points != 0:
             moy_dist = somme_dist / nb_valid_points
-            moy_ang = somme_ang / nb_valid_points
+            moy_ang = somme_ang_val / nb_somme_ang_final
             self.get_logger().info(f"moy_dist = {moy_dist}, moy_ang = {moy_ang}")
         else:
             # IDEE? ajouter la fonction où il faut suivre la dernière postion valide avant que le point sorte du cone
